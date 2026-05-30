@@ -24,11 +24,13 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        # Əgər .m3u8 faylı yaranıbsa, add et, yoxdursa xəta vermədən keç
+        
+        # Əgər .m3u8 faylı yaranıbsa, siyahıya əlavə et
         git add *.m3u8 2>/dev/null || true
+        
         # Dəyişiklik olub-olmadığını yoxla və commit et
         if git diff --staged --quiet; then
-          print "Yenilənəcək fayl tapılmadı və ya dəyişiklik yoxdur."
+          echo "Yenilənəcək fayl tapılmadı və ya dəyişiklik yoxdur."
         else
           git commit -m "Canlı yayın linkləri avtomatik yeniləndi"
           git push
