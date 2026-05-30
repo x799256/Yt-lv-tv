@@ -2,9 +2,8 @@ name: YouTube Live Link Updater
 
 on:
   schedule:
-    # Hər 3 saatdan bir avtomatik işə düşür (YouTube linkləri adətən 4-6 saat aktiv qalır)
     - cron: '0 */3 * * *'
-  workflow_dispatch: # İstədiyiniz an əllə də başlada bilməyiniz üçün
+  workflow_dispatch:
 
 jobs:
   update:
@@ -16,7 +15,7 @@ jobs:
     - name: Python mühitini qur
       uses: actions/setup-python@v4
       with:
-        python-backend: 'cpython'
+        python-version: '3.x'
 
     - name: Linkləri Yenilə
       run: python update_live.py
@@ -25,6 +24,12 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add *.m3u8
-        git commit -m "Canlı yayın linkləri avtomatik yeniləndi" || exit 0
-        git push
+        # Əgər .m3u8 faylı yaranıbsa, add et, yoxdursa xəta vermədən keç
+        git add *.m3u8 2>/dev/null || true
+        # Dəyişiklik olub-olmadığını yoxla və commit et
+        if git diff --staged --quiet; then
+          print "Yenilənəcək fayl tapılmadı və ya dəyişiklik yoxdur."
+        else
+          git commit -m "Canlı yayın linkləri avtomatik yeniləndi"
+          git push
+        fi
