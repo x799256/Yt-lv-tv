@@ -25,7 +25,8 @@ jobs:
       run: |
         # Bura istədiyin Kanal ID-sini yazırsan
         # yt-dlp birbaşa YouTube-un daxili canlı yayın linkini söküb çıxarır
-        yt-dlp -g "https://www.youtube.com/channel/UC0GKelxahF1nHwKyGhfJVYA/live" > live_link.txt || echo "Yayin tapilmadi"
+        yt-dlp --proxy "http://pubproxy.com/api/proxy" -g "https://www.youtube.com/channel/UC0GKelxahF1nHwKyGhfJVYA/live" > live_link.txt || echo "Yayin tapilmadi"
+
         
         # Əgər link tapılıbsa, təmiz m3u8 faylı formatına salırıq
         if [ -s live_link.txt ]; then
