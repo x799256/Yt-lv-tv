@@ -17,21 +17,33 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Linkləri Yenilə
-      run: python update_live.py
+    - name: En son yt-dlp proqramini yukle
+      run: |
+        python3 -m pip install --upgrade yt-dlp
+
+    - name: Linkleri yt-dlp ile darmadagin et ve m3u8 yarat
+      run: |
+        # Bura istədiyin Kanal ID-sini yazırsan
+        # yt-dlp birbaşa YouTube-un daxili canlı yayın linkini söküb çıxarır
+        yt-dlp -g "https://www.youtube.com/channel/UC0GKelxahF1nHwKyGhfJVYA/live" > live_link.txt || echo "Yayin tapilmadi"
+        
+        # Əgər link tapılıbsa, təmiz m3u8 faylı formatına salırıq
+        if [ -s live_link.txt ]; then
+          LINK=$(cat live_link.txt)
+          echo -e "#EXTM3U\n#EXTINF:-1,Menim_Tv\n$LINK" > UC0GKelxahF1nHwKyGhfJVYA.m3u8
+          echo "Fayl ugurla yaradildi!"
+        else
+          echo "Canli yayim linki alina bilmedi."
+        fi
 
     - name: Dəyişiklikləri GitHub-a yüklə
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        
-        # Əgər .m3u8 faylı yaranıbsa, siyahıya əlavə et
         git add *.m3u8 2>/dev/null || true
-        
-        # Dəyişiklik olub-olmadığını yoxla və commit et
         if git diff --staged --quiet; then
-          echo "Yenilənəcək fayl tapılmadı və ya dəyişiklik yoxdur."
+          echo "Yenilenmeli bir sey yoxdur."
         else
-          git commit -m "Canlı yayın linkləri avtomatik yeniləndi"
+          git commit -m "Canli yayin linki yt-dlp ile yenilendi"
           git push
         fi
